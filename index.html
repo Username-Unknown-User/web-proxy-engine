@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>about:blank - Search Engine</title>
+    <title>Search Engine</title>
     <style>
         * {
             margin: 0;
@@ -12,539 +12,384 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #fff;
-            color: #222;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #ddd;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .navbar-logo {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .navbar-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .navbar-btn {
-            border: 1px solid #ddd;
-            background: white;
-            padding: 8px 14px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .navbar-btn:hover {
-            background: #f0f0f0;
-        }
-
-        .main {
-            width: 100%;
-            min-height: calc(100vh - 56px);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            padding: 20px;
         }
 
-        .search-home {
-            text-align: center;
-            max-width: 650px;
+        .container {
             width: 100%;
+            max-width: 700px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px 40px;
+            text-align: center;
         }
 
-        .search-home.hidden {
-            display: none;
+        .logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
         }
 
-        .search-logo {
-            font-size: 64px;
-            font-weight: 300;
-            letter-spacing: -2px;
+        .tagline {
+            color: #666;
+            font-size: 14px;
             margin-bottom: 30px;
         }
 
-        .search-box {
-            position: relative;
-            margin-bottom: 24px;
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .search-input {
-            width: 100%;
-            padding: 16px 20px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 28px;
-            outline: none;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+        .search-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            padding: 0 20px;
+            background: #f9f9f9;
             transition: all 0.3s;
         }
 
-        .search-input:focus {
-            border-color: #4285f4;
-            box-shadow: 0 2px 12px rgba(66, 133, 244, 0.18);
-        }
-
-        .search-btn {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 18px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .search-btn:hover {
-            background: #3367d6;
-        }
-
-        .quick-search {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-            gap: 10px;
-            margin-top: 24px;
-        }
-
-        .quick-btn {
-            background: #f3f3f3;
-            border: 1px solid #e0e0e0;
-            padding: 10px 12px;
-            border-radius: 18px;
-            cursor: pointer;
-            font-size: 12px;
-            color: #555;
-            transition: all 0.2s;
-        }
-
-        .quick-btn:hover {
-            background: #e0e0e0;
-            border-color: #4285f4;
-            color: #4285f4;
-        }
-
-        .results-panel {
-            display: none;
-            width: 100%;
-            max-width: 900px;
-            max-height: 80vh;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+        .search-box:focus-within {
+            border-color: #667eea;
             background: white;
-            overflow: hidden;
-            flex-direction: column;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
-        .results-panel.show {
-            display: flex;
-        }
-
-        .results-header {
-            padding: 14px 18px;
-            border-bottom: 1px solid #e0e0e0;
-            background: #fafafa;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .results-title {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .results-close-btn {
-            background: none;
+        .search-box input {
+            flex: 1;
             border: none;
-            cursor: pointer;
-            font-size: 20px;
+            outline: none;
+            background: transparent;
+            padding: 14px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .search-box input::placeholder {
             color: #999;
         }
 
-        .results-content {
-            flex: 1;
-            overflow-y: auto;
+        .search-icon {
+            color: #999;
+            font-size: 18px;
         }
 
-        .result-item {
-            padding: 14px 18px;
-            border-bottom: 1px solid #e8e8e8;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .result-item:hover {
-            background: #f5f5f5;
-        }
-
-        .result-info {
-            flex: 1;
-            text-align: left;
-            margin-right: 12px;
-        }
-
-        .result-title {
+        .btn-search {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 14px 28px;
             font-size: 14px;
-            color: #1a73e8;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .result-url {
-            font-size: 11px;
-            color: #006621;
-            margin-bottom: 4px;
-        }
-
-        .result-description {
-            font-size: 12px;
-            color: #545454;
-            line-height: 1.4;
-        }
-
-        .result-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        .result-btn {
-            background: #f0f0f0;
-            border: 1px solid #ddd;
-            padding: 6px 12px;
-            border-radius: 14px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 11px;
-            white-space: nowrap;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
 
-        .result-btn:hover {
+        .btn-search:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-search:active {
+            transform: translateY(0);
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .engine-select {
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            color: #333;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .engine-select:hover {
+            border-color: #667eea;
+        }
+
+        .engine-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-blank {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-blank:hover {
             background: #e0e0e0;
+            border-color: #333;
         }
 
-        .hidden {
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .suggestion {
+            padding: 10px 14px;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #555;
+            transition: all 0.3s;
+        }
+
+        .suggestion:hover {
+            background: #efefef;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .error {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 12px;
             display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .logo {
+                font-size: 36px;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .btn-search {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <div class="navbar">
-        <div class="navbar-logo">about:blank</div>
-        <div class="navbar-buttons">
-            <button class="navbar-btn" onclick="openFullscreenSearch()">🌐 Open Fullscreen</button>
-            <button class="navbar-btn" onclick="alert('Settings: Coming soon')">⚙️ Settings</button>
+    <div class="container">
+        <div class="logo">🔍 SEARCH</div>
+        <div class="tagline">Search the web instantly</div>
+
+        <form id="searchForm">
+            <div class="search-form">
+                <div class="search-box">
+                    <span class="search-icon">🔎</span>
+                    <input 
+                        id="query" 
+                        type="text" 
+                        placeholder="Enter search query..." 
+                        autocomplete="off"
+                        autofocus
+                    />
+                </div>
+                <button type="submit" class="btn-search">Search</button>
+            </div>
+
+            <div class="controls">
+                <select id="engine" class="engine-select">
+                    <option value="google">Google</option>
+                    <option value="duckduckgo">DuckDuckGo</option>
+                    <option value="bing">Bing</option>
+                    <option value="brave">Brave Search</option>
+                    <option value="startpage">Startpage</option>
+                </select>
+                <button type="button" class="btn-blank" onclick="openBlankSearch()">📄 Open Blank</button>
+                <button type="button" class="btn-blank" onclick="clearSearch()">Clear</button>
+            </div>
+
+            <div class="error" id="error"></div>
+        </form>
+
+        <div class="suggestions">
+            <div class="suggestion" onclick="search('JavaScript tutorial')">JavaScript</div>
+            <div class="suggestion" onclick="search('Python programming')">Python</div>
+            <div class="suggestion" onclick="search('Web Design tips')">Web Design</div>
+            <div class="suggestion" onclick="search('React.js')">React</div>
+            <div class="suggestion" onclick="search('CSS Grid')">CSS</div>
+            <div class="suggestion" onclick="search('Node.js')">Node.js</div>
         </div>
-    </div>
 
-    <!-- Main Content -->
-    <div class="main">
-        <!-- Search Home -->
-        <div class="search-home" id="searchHome">
-            <div class="search-logo">about:blank</div>
-            
-            <div class="search-box">
-                <input 
-                    id="searchInput" 
-                    class="search-input" 
-                    type="text" 
-                    placeholder="Search the web..." 
-                    autofocus
-                />
-                <button class="search-btn" onclick="performSearch()">Search</button>
-            </div>
-
-            <div class="quick-search">
-                <button class="quick-btn" onclick="quickSearch('JavaScript')">JavaScript</button>
-                <button class="quick-btn" onclick="quickSearch('Python')">Python</button>
-                <button class="quick-btn" onclick="quickSearch('Web Design')">Web Design</button>
-                <button class="quick-btn" onclick="quickSearch('React')">React</button>
-                <button class="quick-btn" onclick="quickSearch('CSS')">CSS</button>
-                <button class="quick-btn" onclick="quickSearch('GitHub')">GitHub</button>
-            </div>
-        </div>
-
-        <!-- Results Panel -->
-        <div class="results-panel" id="resultsPanel">
-            <div class="results-header">
-                <span class="results-title" id="resultsTitle">Results</span>
-                <button class="results-close-btn" onclick="closeResults()">×</button>
-            </div>
-            <div class="results-content" id="resultsContent"></div>
+        <div class="footer">
+            <p>Built for fast, clean searching</p>
+            <a href="#" onclick="return false;">Privacy</a>
+            <a href="#" onclick="return false;">Terms</a>
         </div>
     </div>
 
     <script>
-        var searchInput = document.getElementById('searchInput');
-        var resultsPanel = document.getElementById('resultsPanel');
-        var resultsTitle = document.getElementById('resultsTitle');
-        var resultsContent = document.getElementById('resultsContent');
-        var searchHome = document.getElementById('searchHome');
-
-        // Search database
-        var searchDatabase = {
-            'javascript': [
-                { title: 'JavaScript.info', url: 'https://javascript.info', desc: 'Complete JavaScript tutorial and reference' },
-                { title: 'MDN - JavaScript', url: 'https://developer.mozilla.org/docs/Web/JavaScript', desc: 'Official Mozilla JavaScript documentation' },
-                { title: 'JavaScript Algorithms', url: 'https://github.com/trekhleb/javascript-algorithms', desc: 'JavaScript algorithms and data structures' }
-            ],
-            'python': [
-                { title: 'Python.org', url: 'https://www.python.org', desc: 'Official Python programming language site' },
-                { title: 'Real Python', url: 'https://realpython.com', desc: 'Python tutorials, courses, and articles' },
-                { title: 'Python Docs', url: 'https://docs.python.org', desc: 'Official Python documentation' }
-            ],
-            'web design': [
-                { title: 'Web.dev', url: 'https://web.dev', desc: 'Google web development resources' },
-                { title: 'CSS-Tricks', url: 'https://css-tricks.com', desc: 'Daily CSS tips, tricks, and articles' },
-                { title: 'Dribbble', url: 'https://dribbble.com', desc: 'Design and creative inspiration' }
-            ],
-            'react': [
-                { title: 'React Documentation', url: 'https://react.dev', desc: 'Official React library docs' },
-                { title: 'React Router', url: 'https://reactrouter.com', desc: 'React client-side routing' },
-                { title: 'Redux', url: 'https://redux.js.org', desc: 'Predictable state management' }
-            ],
-            'css': [
-                { title: 'CSS Reference', url: 'https://developer.mozilla.org/docs/Web/CSS', desc: 'Complete CSS property reference' },
-                { title: 'CSS Grid', url: 'https://css-tricks.com/snippets/css/complete-guide-grid/', desc: 'Complete guide to CSS Grid' },
-                { title: 'Flexbox', url: 'https://css-tricks.com/snippets/css/a-guide-to-flexbox/', desc: 'Complete guide to Flexbox' }
-            ],
-            'github': [
-                { title: 'GitHub', url: 'https://github.com', desc: 'Where the world builds software' },
-                { title: 'GitHub Docs', url: 'https://docs.github.com', desc: 'GitHub documentation and guides' },
-                { title: 'GitHub Copilot', url: 'https://github.com/features/copilot', desc: 'AI-assisted code writing' }
-            ]
+        const searchEngines = {
+            google: function(q) {
+                return 'https://www.google.com/search?q=' + encodeURIComponent(q);
+            },
+            duckduckgo: function(q) {
+                return 'https://duckduckgo.com/?q=' + encodeURIComponent(q);
+            },
+            bing: function(q) {
+                return 'https://www.bing.com/search?q=' + encodeURIComponent(q);
+            },
+            brave: function(q) {
+                return 'https://search.brave.com/search?q=' + encodeURIComponent(q);
+            },
+            startpage: function(q) {
+                return 'https://www.startpage.com/sp/search?query=' + encodeURIComponent(q);
+            }
         };
 
-        // Event listeners
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
+        const form = document.getElementById('searchForm');
+        const queryInput = document.getElementById('query');
+        const engineSelect = document.getElementById('engine');
+        const errorDiv = document.getElementById('error');
+
+        // Load saved engine preference
+        const savedEngine = localStorage.getItem('lastSearchEngine');
+        if (savedEngine && searchEngines[savedEngine]) {
+            engineSelect.value = savedEngine;
+        }
+
+        // Save engine preference
+        engineSelect.addEventListener('change', function() {
+            localStorage.setItem('lastSearchEngine', this.value);
         });
 
-        function performSearch() {
-            var query = searchInput.value.trim();
-            if (!query) return;
-            displayResults(query);
-        }
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            executeSearch();
+        });
 
-        function quickSearch(query) {
-            searchInput.value = query;
-            displayResults(query);
-        }
+        function executeSearch() {
+            const query = queryInput.value.trim();
+            const engine = engineSelect.value;
 
-        function displayResults(query) {
-            var lowerQuery = query.toLowerCase();
-            var results = searchDatabase[lowerQuery];
+            // Clear error
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
 
-            if (!results) {
-                results = [
-                    { title: 'Search "' + query + '" on Google', url: 'https://www.google.com/search?q=' + encodeURIComponent(query), desc: 'Google search results for "' + query + '"' },
-                    { title: 'Search "' + query + '" on GitHub', url: 'https://github.com/search?q=' + encodeURIComponent(query), desc: 'GitHub repositories and code for "' + query + '"' },
-                    { title: 'Search "' + query + '" on Stack Overflow', url: 'https://stackoverflow.com/search?q=' + encodeURIComponent(query), desc: 'Q&A and discussions about "' + query + '"' }
-                ];
-            }
-
-            resultsTitle.textContent = 'Results for "' + query + '"';
-            var html = '';
-
-            for (var i = 0; i < results.length; i++) {
-                var r = results[i];
-                html += '<div class="result-item">' +
-                    '<div class="result-info">' +
-                    '<div class="result-title">' + r.title + '</div>' +
-                    '<div class="result-url">' + r.url + '</div>' +
-                    '<div class="result-description">' + r.desc + '</div>' +
-                    '</div>' +
-                    '<div class="result-actions">' +
-                    '<button class="result-btn" onclick="openInNewTab(\'' + r.url + '\')">Open</button>' +
-                    '</div>' +
-                    '</div>';
-            }
-
-            resultsContent.innerHTML = html;
-            searchHome.classList.add('hidden');
-            resultsPanel.classList.add('show');
-        }
-
-        function openInNewTab(url) {
-            var win = window.open(url, '_blank');
-            if (!win) {
-                alert('Popup blocked. Please allow popups.');
-            }
-        }
-
-        function closeResults() {
-            searchHome.classList.remove('hidden');
-            resultsPanel.classList.remove('show');
-            resultsContent.innerHTML = '';
-            searchInput.value = '';
-            searchInput.focus();
-        }
-
-        function openFullscreenSearch() {
-            var win = window.open('about:blank', '_blank');
-            if (!win) {
-                alert('Popup blocked. Please allow popups.');
+            // Validate
+            if (!query) {
+                errorDiv.textContent = 'Please enter a search query.';
+                errorDiv.classList.add('show');
+                queryInput.focus();
                 return;
             }
 
-            var doc = win.document;
-            doc.open();
-            doc.write(
-                '<!DOCTYPE html>' +
-                '<html lang="en"><head>' +
-                '<meta charset="UTF-8">' +
-                '<meta name="viewport" content="width=device-width, initial-scale=1">' +
-                '<title>about:blank Search</title>' +
-                '<style>' +
-                '* { margin: 0; padding: 0; box-sizing: border-box; }' +
-                'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff; display: flex; flex-direction: column; height: 100vh; }' +
-                '.topbar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }' +
-                '.brand { font-size: 18px; font-weight: 600; }' +
-                '.topbar-btn { background: white; border: 1px solid #ddd; padding: 8px 14px; border-radius: 16px; cursor: pointer; font-size: 12px; }' +
-                '.container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }' +
-                '.search-section { text-align: center; max-width: 650px; width: 100%; }' +
-                '.logo { font-size: 64px; font-weight: 300; margin-bottom: 30px; letter-spacing: -2px; }' +
-                '.search-box { position: relative; margin-bottom: 24px; }' +
-                '.search-input { width: 100%; padding: 16px 20px; font-size: 16px; border: 1px solid #ddd; border-radius: 28px; outline: none; box-shadow: 0 1px 8px rgba(0,0,0,0.08); }' +
-                '.search-input:focus { border-color: #4285f4; box-shadow: 0 2px 12px rgba(66,133,244,0.18); }' +
-                '.search-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #4285f4; color: white; border: none; padding: 10px 18px; border-radius: 18px; cursor: pointer; font-size: 13px; }' +
-                '.search-btn:hover { background: #3367d6; }' +
-                '.quick-search { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 24px; }' +
-                '.quick-btn { background: #f3f3f3; border: 1px solid #e0e0e0; padding: 10px 12px; border-radius: 18px; cursor: pointer; font-size: 12px; color: #555; }' +
-                '.quick-btn:hover { background: #e0e0e0; }' +
-                '.results-panel { display: none; flex: 1; border: 1px solid #e0e0e0; border-radius: 8px; margin: 0 40px 40px 40px; background: white; overflow: hidden; flex-direction: column; }' +
-                '.results-panel.show { display: flex; }' +
-                '.results-header { padding: 14px 18px; border-bottom: 1px solid #e0e0e0; background: #fafafa; display: flex; justify-content: space-between; }' +
-                '.results-content { flex: 1; overflow-y: auto; }' +
-                '.result-item { padding: 14px 18px; border-bottom: 1px solid #e8e8e8; cursor: pointer; transition: background 0.2s; }' +
-                '.result-item:hover { background: #f5f5f5; }' +
-                '.result-title { font-size: 14px; color: #1a73e8; font-weight: 500; margin-bottom: 4px; }' +
-                '.result-url { font-size: 11px; color: #006621; margin-bottom: 4px; }' +
-                '.result-description { font-size: 12px; color: #545454; }' +
-                '.result-btn { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 14px; cursor: pointer; font-size: 11px; margin-top: 8px; }' +
-                '.result-btn:hover { background: #e0e0e0; }' +
-                '</style>' +
-                '</head><body>' +
-                '<div class="topbar">' +
-                '<div class="brand">about:blank</div>' +
-                '<button class="topbar-btn" onclick="window.close()">Close</button>' +
-                '</div>' +
-                '<div class="container">' +
-                '<div class="search-section" id="searchSection">' +
-                '<div class="logo">about:blank</div>' +
-                '<div class="search-box">' +
-                '<input id="fsSearchInput" class="search-input" type="text" placeholder="Search the web..." autofocus />' +
-                '<button class="search-btn" onclick="fsPerformSearch()">Search</button>' +
-                '</div>' +
-                '<div class="quick-search">' +
-                '<button class="quick-btn" onclick="fsQuickSearch(\'JavaScript\')">JavaScript</button>' +
-                '<button class="quick-btn" onclick="fsQuickSearch(\'Python\')">Python</button>' +
-                '<button class="quick-btn" onclick="fsQuickSearch(\'Web Design\')">Web Design</button>' +
-                '<button class="quick-btn" onclick="fsQuickSearch(\'React\')">React</button>' +
-                '<button class="quick-btn" onclick="fsQuickSearch(\'CSS\')">CSS</button>' +
-                '<button class="quick-btn" onclick="fsQuickSearch(\'GitHub\')">GitHub</button>' +
-                '</div>' +
-                '</div>' +
-                '<div class="results-panel" id="fsResultsPanel">' +
-                '<div class="results-header" id="fsResultsHeader"></div>' +
-                '<div class="results-content" id="fsResultsContent"></div>' +
-                '</div>' +
-                '</div>' +
-                '<script>' +
-                'var searchDatabase = {' +
-                '  "javascript": [' +
-                '    { title: "JavaScript.info", url: "https://javascript.info", desc: "Complete JavaScript tutorial" },' +
-                '    { title: "MDN - JavaScript", url: "https://developer.mozilla.org/docs/Web/JavaScript", desc: "Mozilla JavaScript docs" },' +
-                '    { title: "JavaScript Algorithms", url: "https://github.com/trekhleb/javascript-algorithms", desc: "Algorithms repo" }' +
-                '  ],' +
-                '  "python": [' +
-                '    { title: "Python.org", url: "https://www.python.org", desc: "Official Python site" },' +
-                '    { title: "Real Python", url: "https://realpython.com", desc: "Python tutorials" },' +
-                '    { title: "Python Docs", url: "https://docs.python.org", desc: "Python documentation" }' +
-                '  ],' +
-                '  "web design": [' +
-                '    { title: "Web.dev", url: "https://web.dev", desc: "Google web resources" },' +
-                '    { title: "CSS-Tricks", url: "https://css-tricks.com", desc: "CSS tips and tricks" },' +
-                '    { title: "Dribbble", url: "https://dribbble.com", desc: "Design inspiration" }' +
-                '  ],' +
-                '  "react": [' +
-                '    { title: "React Docs", url: "https://react.dev", desc: "React documentation" },' +
-                '    { title: "React Router", url: "https://reactrouter.com", desc: "React routing" },' +
-                '    { title: "Redux", url: "https://redux.js.org", desc: "State management" }' +
-                '  ],' +
-                '  "css": [' +
-                '    { title: "CSS Ref", url: "https://developer.mozilla.org/docs/Web/CSS", desc: "CSS reference" },' +
-                '    { title: "CSS Grid", url: "https://css-tricks.com/snippets/css/complete-guide-grid/", desc: "Grid guide" },' +
-                '    { title: "Flexbox", url: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/", desc: "Flexbox guide" }' +
-                '  ],' +
-                '  "github": [' +
-                '    { title: "GitHub", url: "https://github.com", desc: "The worlds largest code repository" },' +
-                '    { title: "GitHub Docs", url: "https://docs.github.com", desc: "GitHub documentation" },' +
-                '    { title: "GitHub Copilot", url: "https://github.com/features/copilot", desc: "AI code assistant" }' +
-                '  ]' +
-                '};' +
-                'function fsPerformSearch() { var q = document.getElementById("fsSearchInput").value.trim(); if (q) fsDisplayResults(q); }' +
-                'function fsQuickSearch(q) { document.getElementById("fsSearchInput").value = q; fsDisplayResults(q); }' +
-                'function fsDisplayResults(query) {' +
-                '  var lower = query.toLowerCase();' +
-                '  var results = searchDatabase[lower];' +
-                '  if (!results) results = [' +
-                '    { title: "Google: " + query, url: "https://www.google.com/search?q=" + encodeURIComponent(query), desc: "Search Google" },' +
-                '    { title: "GitHub: " + query, url: "https://github.com/search?q=" + encodeURIComponent(query), desc: "Search GitHub" }' +
-                '  ];' +
-                '  var html = "";' +
-                '  for (var i = 0; i < results.length; i++) {' +
-                '    var r = results[i];' +
-                '    html += "<div class=\\"result-item\\">" +' +
-                '      "<div class=\\"result-title\\">" + r.title + "</div>" +' +
-                '      "<div class=\\"result-url\\">" + r.url + "</div>" +' +
-                '      "<div class=\\"result-description\\">" + r.desc + "</div>" +' +
-                '      "<button class=\\"result-btn\\" onclick=\\"window.open(\'' + r.url + '\', \'' +
-                '_blank' +
-                '\')\\">' +
-                'Open' +
-                '</button>" +' +
-                '      "</div>";' +
-                '  }' +
-                '  document.getElementById("fsResultsContent").innerHTML = html;' +
-                '  document.getElementById("fsResultsHeader").textContent = "Results for \\"" + query + "\\"";' +
-                '  document.getElementById("fsResultsPanel").classList.add("show");' +
-                '  document.getElementById("searchSection").style.display = "none";' +
-                '}' +
-                'document.getElementById("fsSearchInput").addEventListener("keypress", function(e) { if (e.key === "Enter") fsPerformSearch(); });' +
-                '</script>' +
-                '</body></html>'
-            );
-            doc.close();
-            win.history.replaceState(null, '', 'about:blank');
+            if (!searchEngines[engine]) {
+                errorDiv.textContent = 'Invalid search engine.';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            try {
+                const url = searchEngines[engine](query);
+                const urlObj = new URL(url);
+
+                // Safety check
+                if (urlObj.protocol !== 'https:' && urlObj.protocol !== 'http:') {
+                    throw new Error('Invalid protocol');
+                }
+
+                // Navigate
+                window.location.replace(url);
+            } catch (err) {
+                console.error('Search error:', err);
+                errorDiv.textContent = 'Search failed. Please try again.';
+                errorDiv.classList.add('show');
+            }
         }
+
+        function search(term) {
+            queryInput.value = term;
+            executeSearch();
+        }
+
+        function clearSearch() {
+            queryInput.value = '';
+            errorDiv.classList.remove('show');
+            queryInput.focus();
+        }
+
+        function openBlankSearch() {
+            try {
+                const win = window.open('about:blank', '_blank');
+                if (!win) {
+                    errorDiv.textContent = 'Popup blocked. Please allow popups in your browser.';
+                    errorDiv.classList.add('show');
+                    return;
+                }
+
+                const html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Search</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.box{width:100%;max-width:600px;text-align:center}.logo{font-size:48px;margin-bottom:20px}.search-form{display:flex;gap:10px;margin-bottom:20px}.search-box{flex:1;display:flex;align-items:center;border:2px solid #ddd;border-radius:30px;padding:0 20px}.search-box input{flex:1;border:none;outline:none;padding:14px 0;font-size:16px;background:transparent}.search-form button{background:#667eea;color:white;border:none;border-radius:30px;padding:14px 24px;cursor:pointer;font-weight:600}.search-form button:hover{background:#5568d3}.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}select,button.opt{padding:10px 16px;border:1px solid #ddd;border-radius:20px;background:white;cursor:pointer}.error{color:#d32f2f;font-size:14px;margin-top:10px;display:none}</style></head><body><div class="box"><div class="logo">🔍</div><form id="f"><div class="search-form"><div class="search-box"><input id="q" type="text" placeholder="Search..." autofocus></div><button type="submit">Search</button></div><div class="controls"><select id="e"><option value="google">Google</option><option value="duckduckgo">DuckDuckGo</option><option value="bing">Bing</option><option value="brave">Brave</option></select><button type="button" class="opt" onclick="window.close()">Close</button></div><div class="error" id="err"></div></form></div><script>const eng={google:q=>"https://www.google.com/search?q="+encodeURIComponent(q),duckduckgo:q=>"https://duckduckgo.com/?q="+encodeURIComponent(q),bing:q=>"https://www.bing.com/search?q="+encodeURIComponent(q),brave:q=>"https://search.brave.com/search?q="+encodeURIComponent(q)};const f=document.getElementById("f");const q=document.getElementById("q");const e=document.getElementById("e");const err=document.getElementById("err");const s=localStorage.getItem("blankEngine");if(s&&eng[s])e.value=s;e.addEventListener("change",()=>{localStorage.setItem("blankEngine",e.value)});f.addEventListener("submit",t=>{t.preventDefault();const n=q.value.trim();if(!n){err.textContent="Enter a search term";err.style.display="block";return}const u=eng[e.value](n);try{window.location.replace(u)}catch(r){err.textContent="Search failed";err.style.display="block"}})<\/script></body></html>';
+
+                win.document.write(html);
+                win.document.close();
+                win.history.replaceState(null, '', 'about:blank');
+            } catch (err) {
+                errorDiv.textContent = 'Error opening blank page: ' + err.message;
+                errorDiv.classList.add('show');
+            }
+        }
+
+        // Focus on load
+        queryInput.focus();
     </script>
 </body>
 </html>
