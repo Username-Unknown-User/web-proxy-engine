@@ -123,15 +123,21 @@
         .results {
             display: none;
             text-align: left;
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
         }
 
         .result-item {
-            padding: 15px;
+            padding: 20px;
             border-bottom: 1px solid #e0e0e0;
             cursor: pointer;
             transition: background 0.2s ease;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
         }
 
         .result-item:hover {
@@ -148,7 +154,7 @@
         .result-url {
             color: #006621;
             font-size: 13px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .result-description {
@@ -174,6 +180,45 @@
             border-color: #4285f4;
             color: #4285f4;
         }
+
+        .preview-frame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #4285f4;
+            color: #4285f4;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -192,16 +237,16 @@
             </div>
 
             <div class="suggestions">
-                <button class="suggestion-btn" onclick="quickSearch('weather')">Weather</button>
-                <button class="suggestion-btn" onclick="quickSearch('news')">News</button>
-                <button class="suggestion-btn" onclick="quickSearch('github')">GitHub</button>
-                <button class="suggestion-btn" onclick="quickSearch('stack overflow')">Stack Overflow</button>
-                <button class="suggestion-btn" onclick="quickSearch('youtube')">YouTube</button>
-                <button class="suggestion-btn" onclick="quickSearch('wikipedia')">Wikipedia</button>
+                <button class="suggestion-btn" onclick="quickSearch('JavaScript tutorials')">JavaScript</button>
+                <button class="suggestion-btn" onclick="quickSearch('web development')">Web Dev</button>
+                <button class="suggestion-btn" onclick="quickSearch('HTML5')">HTML5</button>
+                <button class="suggestion-btn" onclick="quickSearch('CSS tips')">CSS Tips</button>
+                <button class="suggestion-btn" onclick="quickSearch('API design')">API Design</button>
+                <button class="suggestion-btn" onclick="quickSearch('web performance')">Performance</button>
             </div>
 
             <div class="footer">
-                <a href="#" onclick="openProxy(); return false;">Open Proxy</a>
+                <a href="#" onclick="openAboutBlank(); return false;">Open Blank</a>
                 <a href="#" onclick="openSettings(); return false;">Settings</a>
                 <a href="#" onclick="showPrivacy(); return false;">Privacy</a>
             </div>
@@ -209,14 +254,58 @@
 
         <div id="resultspage" style="display:none;">
             <button class="back-btn" onclick="goHome()">← Back to Search</button>
-            <div class="results" id="resultsList"></div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" id="tab-results" onclick="switchTab('results')">Results</button>
+                <button class="tab-btn" id="tab-preview" onclick="switchTab('preview')">Preview</button>
+            </div>
+
+            <div class="tab-content active" id="content-results">
+                <div class="results" id="resultsList"></div>
+            </div>
+
+            <div class="tab-content" id="content-preview">
+                <iframe class="preview-frame" id="previewFrame" sandbox="allow-same-origin allow-scripts"></iframe>
+            </div>
         </div>
     </div>
 
     <script>
         const searchInput = document.getElementById('searchInput');
 
-        // Enter key to search
+        const searchDatabase = {
+            javascript: [
+                { title: 'JavaScript.info - Learn JavaScript', url: 'https://javascript.info', description: 'Complete guide to JavaScript with interactive examples and tutorials.' },
+                { title: 'MDN Web Docs - JavaScript', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', description: 'Comprehensive JavaScript documentation and reference guide.' },
+                { title: 'JavaScript ES6 Features', url: 'https://es6-features.org', description: 'Overview of ES6 (ES2015) features and syntax improvements.' }
+            ],
+            'web development': [
+                { title: 'Web.dev by Google', url: 'https://web.dev', description: 'Learn how to build high-quality web experiences with Google guides.' },
+                { title: 'MDN Web Docs', url: 'https://developer.mozilla.org', description: 'Complete documentation for web technologies and standards.' },
+                { title: 'CSS-Tricks', url: 'https://css-tricks.com', description: 'Daily articles about CSS, HTML, JavaScript, and web design.' }
+            ],
+            html5: [
+                { title: 'HTML5 Specification', url: 'https://html.spec.whatwg.org', description: 'Official HTML5 specification and standards.' },
+                { title: 'HTML5 Tutorial', url: 'https://www.w3schools.com/html', description: 'Learn HTML5 with tutorials, examples, and references.' },
+                { title: 'HTML5 Features Guide', url: 'https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5', description: 'Introduction to HTML5 features and APIs.' }
+            ],
+            'css tips': [
+                { title: 'CSS Tricks - Tips and Tricks', url: 'https://css-tricks.com/guide', description: 'Advanced CSS techniques and best practices.' },
+                { title: 'Modern CSS for Layout', url: 'https://moderncss.dev', description: 'Learn about Flexbox, Grid, and modern CSS layouts.' },
+                { title: 'CSS Reference', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS', description: 'Complete CSS property reference and documentation.' }
+            ],
+            'api design': [
+                { title: 'REST API Best Practices', url: 'https://restfulapi.net', description: 'Comprehensive guide to designing RESTful APIs.' },
+                { title: 'API Design Guide', url: 'https://swagger.io/resources/articles/best-practices-in-api-design/', description: 'Best practices for designing scalable and maintainable APIs.' },
+                { title: 'GraphQL Docs', url: 'https://graphql.org', description: 'Learn about GraphQL query language for APIs.' }
+            ],
+            'web performance': [
+                { title: 'Web Vitals by Google', url: 'https://web.dev/vitals', description: 'Essential metrics for measuring web performance.' },
+                { title: 'Performance.now() API', url: 'https://developer.mozilla.org/en-US/docs/Web/API/Performance', description: 'Guide to measuring and optimizing performance.' },
+                { title: 'Lighthouse', url: 'https://developers.google.com/web/tools/lighthouse', description: 'Automated tool for improving web quality.' }
+            ]
+        };
+
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performSearch();
@@ -224,50 +313,49 @@
         });
 
         function performSearch() {
-            const query = searchInput.value.trim();
+            const query = searchInput.value.trim().toLowerCase();
             if (!query) return;
-            
             displayResults(query);
         }
 
         function quickSearch(query) {
             searchInput.value = query;
-            displayResults(query);
+            displayResults(query.toLowerCase());
         }
 
         function displayResults(query) {
-            // Simulate search results (in a real app, this would call an API)
-            const mockResults = [
-                {
-                    title: `${query} - Wikipedia`,
-                    url: `https://en.wikipedia.org/wiki/${query}`,
-                    description: `Learn about ${query} on Wikipedia, the free encyclopedia.`
-                },
-                {
-                    title: `${query} Results - Google`,
-                    url: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
-                    description: `Google Search results for "${query}". Find the most relevant web pages.`
-                },
-                {
-                    title: `${query} - YouTube`,
-                    url: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
-                    description: `Watch videos related to ${query} on YouTube.`
-                },
-                {
-                    title: `${query} on GitHub`,
-                    url: `https://github.com/search?q=${encodeURIComponent(query)}`,
-                    description: `Find repositories and code related to ${query} on GitHub.`
-                },
-                {
-                    title: `${query} - Stack Overflow`,
-                    url: `https://stackoverflow.com/search?q=${encodeURIComponent(query)}`,
-                    description: `Questions and answers about ${query} on Stack Overflow.`
+            let results = [];
+
+            for (const [key, items] of Object.entries(searchDatabase)) {
+                if (key.includes(query) || query.includes(key)) {
+                    results = items;
+                    break;
                 }
-            ];
+            }
+
+            if (results.length === 0) {
+                results = [
+                    {
+                        title: `Search Results for "${query}"`,
+                        url: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+                        description: 'Try searching on Google for more results.'
+                    },
+                    {
+                        title: `"${query}" on Stack Overflow`,
+                        url: `https://stackoverflow.com/search?q=${encodeURIComponent(query)}`,
+                        description: 'Find Q&A on Stack Overflow about this topic.'
+                    },
+                    {
+                        title: `GitHub repositories for "${query}"`,
+                        url: `https://github.com/search?q=${encodeURIComponent(query)}`,
+                        description: 'Search open-source projects on GitHub.'
+                    }
+                ];
+            }
 
             const resultsList = document.getElementById('resultsList');
-            resultsList.innerHTML = mockResults.map((result, index) => `
-                <div class="result-item" onclick="openLink('${result.url}')">
+            resultsList.innerHTML = results.map((result) => `
+                <div class="result-item" onclick="loadPreview('${result.url}', this)">
                     <div class="result-title">${result.title}</div>
                     <div class="result-url">${result.url}</div>
                     <div class="result-description">${result.description}</div>
@@ -278,18 +366,76 @@
             document.getElementById('resultspage').style.display = 'block';
         }
 
-        function openLink(url) {
-            // Open in new blank tab
-            const win = window.open('about:blank', '_blank');
-            if (win) {
-                win.location.href = url;
-            } else {
-                alert('Popup blocked. Please allow popups to open links.');
-            }
+        function loadPreview(url, element) {
+            document.querySelectorAll('.result-item').forEach(item => {
+                item.style.background = '';
+            });
+            element.style.background = '#f0f0f0';
+
+            const previewFrame = document.getElementById('previewFrame');
+            previewFrame.src = url;
+            switchTab('preview');
         }
 
-        function openProxy() {
-            alert('Proxy feature: Opens links through a privacy layer');
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(`content-${tab}`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        function openAboutBlank() {
+            const blankWindow = window.open('about:blank', '_blank');
+            if (blankWindow) {
+                blankWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>about:blank</title>
+                        <style>
+                            body {
+                                margin: 0;
+                                background: white;
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                min-height: 100vh;
+                                color: #999;
+                            }
+                            .content {
+                                text-align: center;
+                            }
+                            a {
+                                color: #4285f4;
+                                text-decoration: none;
+                                display: block;
+                                margin-top: 16px;
+                            }
+                            a:hover {
+                                text-decoration: underline;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="content">
+                            <p>about:blank</p>
+                            <p style="font-size: 12px; margin-top: 16px;">No browser history entry</p>
+                            <a href="javascript:history.back()">← Back</a>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                blankWindow.document.close();
+                blankWindow.history.replaceState(null, '', 'about:blank');
+            } else {
+                alert('Popup blocked. Please allow popups.');
+            }
         }
 
         function openSettings() {
