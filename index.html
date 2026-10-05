@@ -3,393 +3,715 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Engine</title>
+    <title>NEXUS Search Engine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --radius: 12px;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2943 100%);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
         }
 
         .container {
             width: 100%;
-            max-width: 700px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 50px 40px;
-            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .logo {
-            font-size: 48px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
-        }
-
-        .tagline {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        .search-form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .search-box {
-            flex: 1;
             display: flex;
             align-items: center;
-            border: 2px solid #ddd;
-            border-radius: 30px;
-            padding: 0 20px;
-            background: #f9f9f9;
-            transition: all 0.3s;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: var(--accent);
+        }
+
+        .logo i {
+            font-size: 28px;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+            border-color: var(--accent);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .search-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .hero {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: var(--text-tertiary);
+        }
+
+        /* Search Box */
+        .search-box {
+            display: flex;
+            gap: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px;
+            transition: all 0.3s ease;
         }
 
         .search-box:focus-within {
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
         }
 
-        .search-box input {
+        .search-input {
             flex: 1;
+            background: transparent;
             border: none;
             outline: none;
-            background: transparent;
-            padding: 14px 0;
+            color: var(--text-primary);
             font-size: 16px;
-            color: #333;
+            padding: 12px 16px;
         }
 
-        .search-box input::placeholder {
-            color: #999;
-        }
-
-        .search-icon {
-            color: #999;
-            font-size: 18px;
-        }
-
-        .btn-search {
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 14px 28px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-search:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-search:active {
-            transform: translateY(0);
-        }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+        .search-input::placeholder {
+            color: var(--text-tertiary);
         }
 
         .engine-select {
-            padding: 10px 16px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            background: white;
-            color: #333;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .engine-select:hover {
-            border-color: #667eea;
-        }
-
-        .engine-select:focus {
+            background: transparent;
+            border: none;
             outline: none;
-            border-color: #667eea;
-        }
-
-        .btn-blank {
-            background: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 12px 16px;
             cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-blank:hover {
-            background: #e0e0e0;
-            border-color: #333;
-        }
-
-        .suggestions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 30px;
-        }
-
-        .suggestion {
-            padding: 10px 14px;
-            background: #f5f5f5;
-            border: 1px solid #e0e0e0;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            color: #555;
-            transition: all 0.3s;
-        }
-
-        .suggestion:hover {
-            background: #efefef;
-            border-color: #667eea;
-            color: #667eea;
-        }
-
-        .error {
-            color: #d32f2f;
             font-size: 14px;
-            margin-top: 12px;
+            border-right: 1px solid var(--border);
+        }
+
+        .engine-select option {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .search-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .quick-link {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .quick-link:hover {
+            background: #334155;
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Search Results */
+        .results-container {
+            max-width: 900px;
+            margin: 0 auto;
             display: none;
         }
 
-        .error.show {
+        .results-container.active {
             display: block;
         }
 
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 12px;
-            color: #999;
+        .result-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-            margin: 0 8px;
+        .result-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.1);
+            transform: translateX(4px);
         }
 
-        .footer a:hover {
-            text-decoration: underline;
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
         }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
+        .result-url {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .result-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .blank-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .blank-page.active {
+            display: flex;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 32px;
             }
 
-            .logo {
-                font-size: 36px;
-            }
-
-            .search-form {
+            .search-box {
                 flex-direction: column;
             }
 
-            .btn-search {
-                width: 100%;
+            .engine-select {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
             }
+
+            .quick-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .back-btn {
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">🔍 SEARCH</div>
-        <div class="tagline">Search the web instantly</div>
-
-        <form id="searchForm">
-            <div class="search-form">
-                <div class="search-box">
-                    <span class="search-icon">🔎</span>
-                    <input 
-                        id="query" 
-                        type="text" 
-                        placeholder="Enter search query..." 
-                        autocomplete="off"
-                        autofocus
-                    />
-                </div>
-                <button type="submit" class="btn-search">Search</button>
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-magnifying-glass"></i>
+                NEXUS
             </div>
-
-            <div class="controls">
-                <select id="engine" class="engine-select">
-                    <option value="google">Google</option>
-                    <option value="duckduckgo">DuckDuckGo</option>
-                    <option value="bing">Bing</option>
-                    <option value="brave">Brave Search</option>
-                    <option value="startpage">Startpage</option>
-                </select>
-                <button type="button" class="btn-blank" onclick="openBlankSearch()">📄 Open Blank</button>
-                <button type="button" class="btn-blank" onclick="clearSearch()">Clear</button>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="blankBtn">
+                    <i class="fas fa-window-maximize"></i>
+                    Open Blank
+                </button>
+                <button class="btn btn-secondary" id="backBtn" style="display: none;">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </button>
             </div>
-
-            <div class="error" id="error"></div>
-        </form>
-
-        <div class="suggestions">
-            <div class="suggestion" onclick="search('JavaScript tutorial')">JavaScript</div>
-            <div class="suggestion" onclick="search('Python programming')">Python</div>
-            <div class="suggestion" onclick="search('Web Design tips')">Web Design</div>
-            <div class="suggestion" onclick="search('React.js')">React</div>
-            <div class="suggestion" onclick="search('CSS Grid')">CSS</div>
-            <div class="suggestion" onclick="search('Node.js')">Node.js</div>
         </div>
 
-        <div class="footer">
-            <p>Built for fast, clean searching</p>
-            <a href="#" onclick="return false;">Privacy</a>
-            <a href="#" onclick="return false;">Terms</a>
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Homepage -->
+            <div id="homepage" class="search-wrapper">
+                <div class="hero">
+                    <div class="hero-title">NEXUS</div>
+                    <div class="hero-subtitle">Lightning-fast search across the entire web</div>
+                </div>
+
+                <div class="search-box">
+                    <select class="engine-select" id="engineSelect">
+                        <option value="google">Google</option>
+                        <option value="duckduckgo">DuckDuckGo</option>
+                        <option value="bing">Bing</option>
+                        <option value="brave">Brave</option>
+                        <option value="startpage">Startpage</option>
+                    </select>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput" 
+                        placeholder="Search anything..."
+                        autofocus
+                    >
+                    <div class="search-actions">
+                        <button class="search-btn" id="searchBtn">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quick-links">
+                    <div class="quick-link" onclick="quickSearch('JavaScript')">JavaScript</div>
+                    <div class="quick-link" onclick="quickSearch('Python')">Python</div>
+                    <div class="quick-link" onclick="quickSearch('Web Design')">Web Design</div>
+                    <div class="quick-link" onclick="quickSearch('React')">React</div>
+                    <div class="quick-link" onclick="quickSearch('Node.js')">Node.js</div>
+                    <div class="quick-link" onclick="quickSearch('CSS')">CSS</div>
+                    <div class="quick-link" onclick="quickSearch('GitHub')">GitHub</div>
+                    <div class="quick-link" onclick="quickSearch('Docker')">Docker</div>
+                </div>
+            </div>
+
+            <!-- Results Page -->
+            <div id="resultsPage" class="results-container">
+                <div id="resultsContent"></div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <div>Loading results...</div>
+            </div>
+
+            <!-- Blank Page -->
+            <div id="blankPage" class="blank-page">
+                <div class="search-wrapper">
+                    <div class="hero">
+                        <div class="hero-title">Search</div>
+                        <div class="hero-subtitle">Fresh start, clean search</div>
+                    </div>
+
+                    <div class="search-box">
+                        <select class="engine-select" id="blankEngineSelect">
+                            <option value="google">Google</option>
+                            <option value="duckduckgo">DuckDuckGo</option>
+                            <option value="bing">Bing</option>
+                            <option value="brave">Brave</option>
+                            <option value="startpage">Startpage</option>
+                        </select>
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="blankSearchInput" 
+                            placeholder="Search anything..."
+                            autofocus
+                        >
+                        <div class="search-actions">
+                            <button class="search-btn" id="blankSearchBtn">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="quick-links">
+                        <div class="quick-link" onclick="blankQuickSearch('JavaScript')">JavaScript</div>
+                        <div class="quick-link" onclick="blankQuickSearch('Python')">Python</div>
+                        <div class="quick-link" onclick="blankQuickSearch('Web Design')">Web Design</div>
+                        <div class="quick-link" onclick="blankQuickSearch('React')">React</div>
+                        <div class="quick-link" onclick="blankQuickSearch('Node.js')">Node.js</div>
+                        <div class="quick-link" onclick="blankQuickSearch('CSS')">CSS</div>
+                        <div class="quick-link" onclick="blankQuickSearch('GitHub')">GitHub</div>
+                        <div class="quick-link" onclick="blankQuickSearch('Docker')">Docker</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // Search Engines
         const searchEngines = {
-            google: function(q) {
-                return 'https://www.google.com/search?q=' + encodeURIComponent(q);
-            },
-            duckduckgo: function(q) {
-                return 'https://duckduckgo.com/?q=' + encodeURIComponent(q);
-            },
-            bing: function(q) {
-                return 'https://www.bing.com/search?q=' + encodeURIComponent(q);
-            },
-            brave: function(q) {
-                return 'https://search.brave.com/search?q=' + encodeURIComponent(q);
-            },
-            startpage: function(q) {
-                return 'https://www.startpage.com/sp/search?query=' + encodeURIComponent(q);
-            }
+            google: (q) => `https://www.google.com/search?q=${encodeURIComponent(q)}`,
+            duckduckgo: (q) => `https://duckduckgo.com/?q=${encodeURIComponent(q)}`,
+            bing: (q) => `https://www.bing.com/search?q=${encodeURIComponent(q)}`,
+            brave: (q) => `https://search.brave.com/search?q=${encodeURIComponent(q)}`,
+            startpage: (q) => `https://www.startpage.com/sp/search?query=${encodeURIComponent(q)}`
         };
 
-        const form = document.getElementById('searchForm');
-        const queryInput = document.getElementById('query');
-        const engineSelect = document.getElementById('engine');
-        const errorDiv = document.getElementById('error');
+        // Elements
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const engineSelect = document.getElementById('engineSelect');
+        const blankBtn = document.getElementById('blankBtn');
+        const backBtn = document.getElementById('backBtn');
+        const homepage = document.getElementById('homepage');
+        const resultsPage = document.getElementById('resultsPage');
+        const resultsContent = document.getElementById('resultsContent');
+        const loading = document.getElementById('loading');
+        const blankPage = document.getElementById('blankPage');
+        const blankSearchInput = document.getElementById('blankSearchInput');
+        const blankSearchBtn = document.getElementById('blankSearchBtn');
+        const blankEngineSelect = document.getElementById('blankEngineSelect');
 
-        // Load saved engine preference
-        const savedEngine = localStorage.getItem('lastSearchEngine');
-        if (savedEngine && searchEngines[savedEngine]) {
-            engineSelect.value = savedEngine;
-        }
-
-        // Save engine preference
-        engineSelect.addEventListener('change', function() {
-            localStorage.setItem('lastSearchEngine', this.value);
+        // Event Listeners
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
         });
 
-        // Handle form submission
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            executeSearch();
+        blankBtn.addEventListener('click', openBlankSearch);
+        backBtn.addEventListener('click', goHome);
+
+        blankSearchBtn.addEventListener('click', blankPerformSearch);
+        blankSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') blankPerformSearch();
         });
 
-        function executeSearch() {
-            const query = queryInput.value.trim();
-            const engine = engineSelect.value;
-
-            // Clear error
-            errorDiv.classList.remove('show');
-            errorDiv.textContent = '';
-
-            // Validate
+        // Functions
+        function performSearch() {
+            const query = searchInput.value.trim();
             if (!query) {
-                errorDiv.textContent = 'Please enter a search query.';
-                errorDiv.classList.add('show');
-                queryInput.focus();
+                searchInput.focus();
                 return;
             }
 
-            if (!searchEngines[engine]) {
-                errorDiv.textContent = 'Invalid search engine.';
-                errorDiv.classList.add('show');
+            const engine = engineSelect.value;
+            const url = searchEngines[engine](query);
+            window.location.href = url;
+        }
+
+        function blankPerformSearch() {
+            const query = blankSearchInput.value.trim();
+            if (!query) {
+                blankSearchInput.focus();
                 return;
             }
 
-            try {
-                const url = searchEngines[engine](query);
-                const urlObj = new URL(url);
-
-                // Safety check
-                if (urlObj.protocol !== 'https:' && urlObj.protocol !== 'http:') {
-                    throw new Error('Invalid protocol');
-                }
-
-                // Navigate
-                window.location.replace(url);
-            } catch (err) {
-                console.error('Search error:', err);
-                errorDiv.textContent = 'Search failed. Please try again.';
-                errorDiv.classList.add('show');
-            }
+            const engine = blankEngineSelect.value;
+            const url = searchEngines[engine](query);
+            window.location.href = url;
         }
 
-        function search(term) {
-            queryInput.value = term;
-            executeSearch();
+        function quickSearch(term) {
+            searchInput.value = term;
+            performSearch();
         }
 
-        function clearSearch() {
-            queryInput.value = '';
-            errorDiv.classList.remove('show');
-            queryInput.focus();
+        function blankQuickSearch(term) {
+            blankSearchInput.value = term;
+            blankPerformSearch();
         }
 
         function openBlankSearch() {
-            try {
-                const win = window.open('about:blank', '_blank');
-                if (!win) {
-                    errorDiv.textContent = 'Popup blocked. Please allow popups in your browser.';
-                    errorDiv.classList.add('show');
-                    return;
-                }
-
-                const html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Search</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.box{width:100%;max-width:600px;text-align:center}.logo{font-size:48px;margin-bottom:20px}.search-form{display:flex;gap:10px;margin-bottom:20px}.search-box{flex:1;display:flex;align-items:center;border:2px solid #ddd;border-radius:30px;padding:0 20px}.search-box input{flex:1;border:none;outline:none;padding:14px 0;font-size:16px;background:transparent}.search-form button{background:#667eea;color:white;border:none;border-radius:30px;padding:14px 24px;cursor:pointer;font-weight:600}.search-form button:hover{background:#5568d3}.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}select,button.opt{padding:10px 16px;border:1px solid #ddd;border-radius:20px;background:white;cursor:pointer}.error{color:#d32f2f;font-size:14px;margin-top:10px;display:none}</style></head><body><div class="box"><div class="logo">🔍</div><form id="f"><div class="search-form"><div class="search-box"><input id="q" type="text" placeholder="Search..." autofocus></div><button type="submit">Search</button></div><div class="controls"><select id="e"><option value="google">Google</option><option value="duckduckgo">DuckDuckGo</option><option value="bing">Bing</option><option value="brave">Brave</option></select><button type="button" class="opt" onclick="window.close()">Close</button></div><div class="error" id="err"></div></form></div><script>const eng={google:q=>"https://www.google.com/search?q="+encodeURIComponent(q),duckduckgo:q=>"https://duckduckgo.com/?q="+encodeURIComponent(q),bing:q=>"https://www.bing.com/search?q="+encodeURIComponent(q),brave:q=>"https://search.brave.com/search?q="+encodeURIComponent(q)};const f=document.getElementById("f");const q=document.getElementById("q");const e=document.getElementById("e");const err=document.getElementById("err");const s=localStorage.getItem("blankEngine");if(s&&eng[s])e.value=s;e.addEventListener("change",()=>{localStorage.setItem("blankEngine",e.value)});f.addEventListener("submit",t=>{t.preventDefault();const n=q.value.trim();if(!n){err.textContent="Enter a search term";err.style.display="block";return}const u=eng[e.value](n);try{window.location.replace(u)}catch(r){err.textContent="Search failed";err.style.display="block"}})<\/script></body></html>';
-
-                win.document.write(html);
-                win.document.close();
-                win.history.replaceState(null, '', 'about:blank');
-            } catch (err) {
-                errorDiv.textContent = 'Error opening blank page: ' + err.message;
-                errorDiv.classList.add('show');
+            const win = window.open();
+            if (!win) {
+                alert('Popups blocked. Enable popups and try again.');
+                return;
             }
+
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Blank Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --border: #334155;
+            --text-primary: #f1f5f9;
+            --text-tertiary: #94a3b8;
+            --accent: #06b6d4;
         }
 
-        // Focus on load
-        queryInput.focus();
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2943 100%); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        
+        .container { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+        .hero { text-align: center; margin-bottom: 40px; }
+        .hero-title { font-size: 48px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
+        .hero-subtitle { font-size: 16px; color: var(--text-tertiary); }
+
+        .search-box { display: flex; gap: 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 8px; width: 100%; max-width: 600px; }
+        .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
+        .search-input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 16px; padding: 12px 16px; }
+        .search-input::placeholder { color: var(--text-tertiary); }
+        .engine-select { background: transparent; border: none; outline: none; color: var(--text-primary); padding: 12px 16px; cursor: pointer; font-size: 14px; border-right: 1px solid var(--border); }
+        .engine-select option { background: var(--bg-dark); color: var(--text-primary); }
+
+        .search-btn { padding: 12px 24px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .search-btn:hover { background: #4f46e5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <div class="hero-title">NEXUS</div>
+            <div class="hero-subtitle">Clean. Fast. Simple.</div>
+        </div>
+        
+        <div class="search-box">
+            <select id="eng" class="engine-select">
+                <option value="google">Google</option>
+                <option value="duckduckgo">DuckDuckGo</option>
+                <option value="bing">Bing</option>
+                <option value="brave">Brave</option>
+                <option value="startpage">Startpage</option>
+            </select>
+            <input id="q" type="text" class="search-input" placeholder="Search anything..." autofocus>
+            <button id="go" class="search-btn">Search</button>
+        </div>
+    </div>
+
+    <script>
+        const engines = {
+            google: (q) => \`https://www.google.com/search?q=\${encodeURIComponent(q)}\`,
+            duckduckgo: (q) => \`https://duckduckgo.com/?q=\${encodeURIComponent(q)}\`,
+            bing: (q) => \`https://www.bing.com/search?q=\${encodeURIComponent(q)}\`,
+            brave: (q) => \`https://search.brave.com/search?q=\${encodeURIComponent(q)}\`,
+            startpage: (q) => \`https://www.startpage.com/sp/search?query=\${encodeURIComponent(q)}\`
+        };
+
+        const q = document.getElementById('q');
+        const eng = document.getElementById('eng');
+        const go = document.getElementById('go');
+
+        function search() {
+            const query = q.value.trim();
+            if (!query) return;
+            const url = engines[eng.value](query);
+            window.location.href = url;
+        }
+
+        go.addEventListener('click', search);
+        q.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') search();
+        });
+
+        // Replace history to prevent back button showing about:blank
+        window.history.replaceState(null, '', 'about:blank');
+    </script>
+</body>
+</html>`;
+
+            win.document.write(html);
+            win.document.close();
+        }
+
+        function goHome() {
+            homepage.style.display = 'flex';
+            resultsPage.classList.remove('active');
+            blankPage.classList.remove('active');
+            backBtn.style.display = 'none';
+            searchInput.focus();
+        }
+
+        // Load saved engine preference
+        const savedEngine = localStorage.getItem('nexusEngine');
+        if (savedEngine && searchEngines[savedEngine]) {
+            engineSelect.value = savedEngine;
+            blankEngineSelect.value = savedEngine;
+        }
+
+        engineSelect.addEventListener('change', function() {
+            localStorage.setItem('nexusEngine', this.value);
+        });
+
+        blankEngineSelect.addEventListener('change', function() {
+            localStorage.setItem('nexusEngine', this.value);
+        });
     </script>
 </body>
 </html>
