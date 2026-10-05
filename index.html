@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Blank Search Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: 300;
+            color: #222;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input:focus {
+            border-color: #4285f4;
+            box-shadow: 0 4px 16px rgba(66, 133, 244, 0.2);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .search-button:hover {
+            background: #3367d6;
+        }
+
+        .search-button:active {
+            background: #235ec1;
+        }
+
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .suggestion-btn {
+            padding: 12px 16px;
+            background: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-btn:hover {
+            background: #e8e8e8;
+            border-color: #4285f4;
+            color: #4285f4;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .footer a {
+            color: #4285f4;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .results {
+            display: none;
+            text-align: left;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .result-item:hover {
+            background: #f5f5f5;
+        }
+
+        .result-title {
+            color: #4285f4;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .result-url {
+            color: #006621;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .result-description {
+            color: #545454;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .back-btn {
+            background: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #e8e8e8;
+            border-color: #4285f4;
+            color: #4285f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="homepage">
+            <div class="logo">about:blank</div>
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Search the web..." 
+                    autofocus
+                >
+                <button class="search-button" onclick="performSearch()">Search</button>
+            </div>
+
+            <div class="suggestions">
+                <button class="suggestion-btn" onclick="quickSearch('weather')">Weather</button>
+                <button class="suggestion-btn" onclick="quickSearch('news')">News</button>
+                <button class="suggestion-btn" onclick="quickSearch('github')">GitHub</button>
+                <button class="suggestion-btn" onclick="quickSearch('stack overflow')">Stack Overflow</button>
+                <button class="suggestion-btn" onclick="quickSearch('youtube')">YouTube</button>
+                <button class="suggestion-btn" onclick="quickSearch('wikipedia')">Wikipedia</button>
+            </div>
+
+            <div class="footer">
+                <a href="#" onclick="openProxy(); return false;">Open Proxy</a>
+                <a href="#" onclick="openSettings(); return false;">Settings</a>
+                <a href="#" onclick="showPrivacy(); return false;">Privacy</a>
+            </div>
+        </div>
+
+        <div id="resultspage" style="display:none;">
+            <button class="back-btn" onclick="goHome()">← Back to Search</button>
+            <div class="results" id="resultsList"></div>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+
+        // Enter key to search
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+            
+            displayResults(query);
+        }
+
+        function quickSearch(query) {
+            searchInput.value = query;
+            displayResults(query);
+        }
+
+        function displayResults(query) {
+            // Simulate search results (in a real app, this would call an API)
+            const mockResults = [
+                {
+                    title: `${query} - Wikipedia`,
+                    url: `https://en.wikipedia.org/wiki/${query}`,
+                    description: `Learn about ${query} on Wikipedia, the free encyclopedia.`
+                },
+                {
+                    title: `${query} Results - Google`,
+                    url: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+                    description: `Google Search results for "${query}". Find the most relevant web pages.`
+                },
+                {
+                    title: `${query} - YouTube`,
+                    url: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
+                    description: `Watch videos related to ${query} on YouTube.`
+                },
+                {
+                    title: `${query} on GitHub`,
+                    url: `https://github.com/search?q=${encodeURIComponent(query)}`,
+                    description: `Find repositories and code related to ${query} on GitHub.`
+                },
+                {
+                    title: `${query} - Stack Overflow`,
+                    url: `https://stackoverflow.com/search?q=${encodeURIComponent(query)}`,
+                    description: `Questions and answers about ${query} on Stack Overflow.`
+                }
+            ];
+
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = mockResults.map((result, index) => `
+                <div class="result-item" onclick="openLink('${result.url}')">
+                    <div class="result-title">${result.title}</div>
+                    <div class="result-url">${result.url}</div>
+                    <div class="result-description">${result.description}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('homepage').style.display = 'none';
+            document.getElementById('resultspage').style.display = 'block';
+        }
+
+        function openLink(url) {
+            // Open in new blank tab
+            const win = window.open('about:blank', '_blank');
+            if (win) {
+                win.location.href = url;
+            } else {
+                alert('Popup blocked. Please allow popups to open links.');
+            }
+        }
+
+        function openProxy() {
+            alert('Proxy feature: Opens links through a privacy layer');
+        }
+
+        function openSettings() {
+            alert('Settings: Coming soon');
+        }
+
+        function showPrivacy() {
+            alert('Privacy: This search engine respects your privacy');
+        }
+
+        function goHome() {
+            document.getElementById('homepage').style.display = 'block';
+            document.getElementById('resultspage').style.display = 'none';
+            searchInput.value = '';
+            searchInput.focus();
+        }
+    </script>
+</body>
+</html>
