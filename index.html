@@ -274,35 +274,6 @@
             text-align: center;
             color: #999;
         }
-
-        .fullscreen-frame {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            border: none;
-            z-index: 10000;
-        }
-
-        .close-fullscreen {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            z-index: 10001;
-            padding: 8px 14px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background 0.2s;
-        }
-
-        .close-fullscreen:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
     </style>
 </head>
 <body>
@@ -397,8 +368,10 @@
 
         const searchInput = document.getElementById('searchInput');
 
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch();
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
         });
 
         function performSearch() {
@@ -415,55 +388,42 @@
         function displayResults(query) {
             let results = [];
 
-            // Search database - match by keyword
-            for (const [key, items] of Object.entries(searchDatabase)) {
+            for (const key in searchDatabase) {
                 if (key.includes(query) || query.includes(key)) {
-                    results = items;
+                    results = searchDatabase[key];
                     break;
                 }
             }
 
-            // If no exact match, try partial matches
-            if (results.length === 0) {
-                for (const [key, items] of Object.entries(searchDatabase)) {
-                    if (key.includes(query.substring(0, 3))) {
-                        results = items;
-                        break;
-                    }
-                }
-            }
-
-            // Fallback to generic results
             if (results.length === 0) {
                 results = [
-                    { title: `"${query}" on Google`, url: `https://www.google.com/search?q=${encodeURIComponent(query)}`, desc: 'Search Google for more results' },
-                    { title: `"${query}" on GitHub`, url: `https://github.com/search?q=${encodeURIComponent(query)}`, desc: 'Search GitHub repositories' }
+                    { title: 'Search "' + query + '" on Google', url: 'https://www.google.com/search?q=' + encodeURIComponent(query), desc: 'Search Google for more results' },
+                    { title: 'Search "' + query + '" on GitHub', url: 'https://github.com/search?q=' + encodeURIComponent(query), desc: 'Search GitHub repositories' }
                 ];
             }
 
             renderResults(results, query);
-            show('resultsView');
-            hide('homepage');
+            showElement('resultsView');
+            hideElement('homepage');
         }
 
         function renderResults(results, query) {
             const resultsList = document.getElementById('resultsList');
             const resultsTitle = document.getElementById('resultsTitle');
             
-            resultsTitle.textContent = `Results for "${query}"`;
+            resultsTitle.textContent = 'Results for "' + query + '"';
 
             if (results.length === 0) {
                 resultsList.innerHTML = '<div class="no-results">No results found</div>';
                 return;
             }
 
-            resultsList.innerHTML = results.map(r => `
-                <div class="result-item" onclick="loadPreview('${r.url}')">
-                    <div class="result-title">${r.title}</div>
-                    <div class="result-url">${r.url}</div>
-                    <div class="result-description">${r.desc}</div>
-                </div>
-            `).join('');
+            let html = '';
+            for (let i = 0; i < results.length; i++) {
+                const r = results[i];
+                html += '<div class="result-item" onclick="loadPreview(\'' + r.url + '\')"><div class="result-title">' + r.title + '</div><div class="result-url">' + r.url + '</div><div class="result-description">' + r.desc + '</div></div>';
+            }
+            resultsList.innerHTML = html;
         }
 
         function loadPreview(url) {
@@ -473,63 +433,25 @@
         }
 
         function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.getElementById(`tab-${tab}-btn`).classList.add('active');
+            const contents = document.querySelectorAll('.tab-content');
+            for (let i = 0; i < contents.length; i++) {
+                contents[i].classList.remove('active');
+            }
+            
+            const btns = document.querySelectorAll('.tab-btn');
+            for (let i = 0; i < btns.length; i++) {
+                btns[i].classList.remove('active');
+            }
+            
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('tab-' + tab + '-btn').classList.add('active');
         }
 
         function openFullscreenBlank() {
             const blankWindow = window.open('about:blank', '_blank');
             if (blankWindow) {
-                blankWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>about:blank - Fullscreen</title>
-                        <style>
-                            * { margin: 0; padding: 0; }
-                            body { width: 100vw; height: 100vh; overflow: hidden; }
-                            iframe { border: none; width: 100%; height: 100%; }
-                            .close-btn {
-                                position: fixed; top: 12px; right: 12px;
-                                padding: 8px 14px; background: rgba(0,0,0,0.6);
-                                color: white; border: none; border-radius: 4px;
-                                cursor: pointer; font-size: 12px; z-index: 10001;
-                            }
-                            .close-btn:hover { background: rgba(0,0,0,0.8); }
-                        </style>
-                    </head>
-                    <body>
-                        <button class="close-btn" onclick="window.close()">Close (ESC)</button>
-                        <input type="text" id="urlInput" placeholder="Enter URL..." 
-                            style="position:fixed;top:50px;left:12px;z-index:10001;padding:8px;width:300px;border-radius:4px;border:1px solid #ddd;">
-                        <script>
-                            let currentIframe;
-                            const urlInput = document.getElementById('urlInput');
-                            
-                            function loadUrl(url) {
-                                if (!url) return;
-                                if (!url.startsWith('http')) url = 'https://' + url;
-                                
-                                if (currentIframe) currentIframe.remove();
-                                const iframe = document.createElement('iframe');
-                                iframe.src = url;
-                                document.body.appendChild(iframe);
-                                currentIframe = iframe;
-                            }
-                            
-                            urlInput.addEventListener('keypress', (e) => {
-                                if (e.key === 'Enter') loadUrl(urlInput.value);
-                            });
-                            
-                            document.addEventListener('keydown', (e) => {
-                                if (e.key === 'Escape') window.close();
-                            });
-                        </script>
-                    </body>
-                    </html>
-                `);
+                const html = '<!DOCTYPE html><html><head><title>about:blank</title><style>* { margin: 0; padding: 0; } body { width: 100vw; height: 100vh; overflow: hidden; } iframe { border: none; width: 100%; height: 100%; } .close-btn { position: fixed; top: 12px; right: 12px; padding: 8px 14px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 10001; } .close-btn:hover { background: rgba(0,0,0,0.8); } #urlInput { position: fixed; top: 50px; left: 12px; z-index: 10001; padding: 8px; width: 300px; border-radius: 4px; border: 1px solid #ddd; }</style></head><body><button class="close-btn" onclick="window.close()">Close (ESC)</button><input type="text" id="urlInput" placeholder="Enter URL..."><script>let currentIframe; const urlInput = document.getElementById("urlInput"); function loadUrl(url) { if (!url) return; if (!url.startsWith("http")) url = "https://" + url; if (currentIframe) currentIframe.remove(); const iframe = document.createElement("iframe"); iframe.src = url; document.body.appendChild(iframe); currentIframe = iframe; } urlInput.addEventListener("keypress", function(e) { if (e.key === "Enter") loadUrl(urlInput.value); }); document.addEventListener("keydown", function(e) { if (e.key === "Escape") window.close(); });</script></body></html>';
+                blankWindow.document.write(html);
                 blankWindow.document.close();
                 blankWindow.history.replaceState(null, '', 'about:blank');
             } else {
@@ -538,22 +460,27 @@
         }
 
         function goHome() {
-            show('homepage');
-            hide('resultsView');
+            showElement('homepage');
+            hideElement('resultsView');
             document.getElementById('previewFrame').src = '';
             searchInput.value = '';
             searchInput.focus();
         }
 
-        function show(id) {
-            document.getElementById(id).classList.remove('hidden');
+        function showElement(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('hidden');
+            }
         }
 
-        function hide(id) {
-            document.getElementById(id).classList.add('hidden');
+        function hideElement(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('hidden');
+            }
         }
 
-        // Focus on load
         searchInput.focus();
     </script>
 </body>
