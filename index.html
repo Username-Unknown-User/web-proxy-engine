@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gust — AI Search Workspace</title>
+    <title>Gust — Universal Web Proxy Engine</title>
     <style>
       :root {
         --bg: #070b14;
@@ -225,6 +225,12 @@
         padding: 18px 24px 24px;
       }
 
+      .workspace.fullscreen {
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding: 0;
+      }
+
       .panel {
         background: rgba(15, 23, 38, 0.72);
         backdrop-filter: blur(12px);
@@ -236,6 +242,12 @@
       .sidebar, .rightbar {
         padding: 16px;
         overflow: auto;
+      }
+
+      .workspace.fullscreen .sidebar,
+      .workspace.fullscreen .rightbar,
+      .workspace.fullscreen .center-column {
+        display: none;
       }
 
       .section-label {
@@ -264,6 +276,7 @@
         border: 1px solid transparent;
         background: rgba(148, 163, 184, 0.03);
         color: var(--muted-strong);
+        cursor: pointer;
       }
 
       .filter-item.active {
@@ -331,6 +344,7 @@
         border: 1px solid var(--border);
         background: rgba(17, 24, 39, 0.72);
         transition: 0.2s ease;
+        cursor: pointer;
       }
 
       .result-card:hover {
@@ -376,6 +390,7 @@
         overflow: hidden;
         white-space: nowrap;
         margin-bottom: 10px;
+        word-break: break-all;
       }
 
       .result-snippet {
@@ -465,6 +480,11 @@
         border: 1px solid var(--border);
         border-radius: 12px;
         background: rgba(148, 163, 184, 0.02);
+        cursor: pointer;
+      }
+
+      .pin-item:hover {
+        border-color: rgba(96, 165, 250, 0.4);
       }
 
       .pin-item h4 {
@@ -476,6 +496,7 @@
       .pin-item small {
         display: block;
         color: var(--muted);
+        word-break: break-all;
       }
 
       .preview-panel {
@@ -484,6 +505,9 @@
         overflow: hidden;
         border: 1px solid var(--border);
         background: rgba(10, 15, 27, 0.85);
+        display: flex;
+        flex-direction: column;
+        height: 450px;
       }
 
       .preview-toolbar {
@@ -494,6 +518,7 @@
         padding: 10px 12px;
         border-bottom: 1px solid var(--border);
         background: rgba(15, 23, 38, 0.9);
+        flex-wrap: wrap;
       }
 
       .preview-title {
@@ -502,17 +527,20 @@
         font-weight: 700;
         letter-spacing: 0.04em;
         text-transform: uppercase;
+        flex: 0 1 auto;
       }
 
       .preview-actions {
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
       }
 
       .preview-window {
         position: relative;
-        height: 290px;
+        flex: 1;
+        min-height: 0;
         background: #0d1321;
       }
 
@@ -547,8 +575,54 @@
         color: var(--muted);
       }
 
-      .settings-modal {
+      .fullscreen-frame {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: white;
+      }
+
+      .fullscreen-controls {
         position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        display: flex;
+        gap: 10px;
+        z-index: 101;
+        background: rgba(0,0,0,0.7);
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .fullscreen-controls button {
+        padding: 10px 14px;
+        background: rgba(124, 156, 255, 0.9);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .fullscreen-controls button:hover {
+        background: rgba(124, 156, 255, 1);
+      }
+
+      .fullscreen-url {
+        flex: 1;
+        background: rgba(255,255,255,0.9);
+        padding: 10px 14px;
+        border-radius: 8px;
+        color: #000;
+        overflow: auto;
+        max-height: 40px;
+        font-size: 12px;
+        word-break: break-all;
+      }
+
+      .settings-modal {
+        position: fixed;
         inset: 0;
         display: none;
         align-items: center;
@@ -568,6 +642,8 @@
         border-radius: 22px;
         padding: 18px;
         box-shadow: var(--shadow);
+        max-height: 90vh;
+        overflow-y: auto;
       }
 
       .settings-header {
@@ -590,6 +666,7 @@
         height: 36px;
         border-radius: 10px;
         cursor: pointer;
+        font-weight: bold;
       }
 
       .settings-grid {
@@ -663,6 +740,31 @@
         margin-top: 18px;
       }
 
+      .url-input-row {
+        display: flex;
+        gap: 10px;
+        padding: 12px 0;
+      }
+
+      .url-input-row input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: rgba(15, 23, 38, 0.92);
+        color: var(--text);
+      }
+
+      .url-input-row button {
+        padding: 10px 16px;
+        background: linear-gradient(135deg, var(--primary), #8b5cf6);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
       @media (max-width: 1100px) {
         .workspace {
           grid-template-columns: 220px minmax(0, 1fr);
@@ -710,7 +812,7 @@
 
           <div class="search-bar" role="search">
             <div class="search-icon" aria-hidden="true"></div>
-            <input id="searchInput" class="search-input" type="text" value="React hooks" placeholder="Search the web, code, news, local data..." />
+            <input id="searchInput" class="search-input" type="text" value="React hooks" placeholder="Search the web, or enter any URL to open..." />
             <div class="search-actions">
               <button id="searchBtn" class="primary-button" type="button">Search</button>
               <button id="settingsBtn" class="secondary-button" type="button">Settings</button>
@@ -731,7 +833,7 @@
         </nav>
       </header>
 
-      <main class="workspace">
+      <main class="workspace" id="workspace">
         <aside class="panel sidebar">
           <div class="section-label">
             <span>Filters</span>
@@ -789,6 +891,7 @@
               <div class="preview-title">Page preview</div>
               <div class="preview-actions">
                 <button class="tiny-button" id="previewBack" type="button">Back</button>
+                <button class="tiny-button" id="previewFullscreen" type="button">Fullscreen</button>
                 <button class="tiny-button" id="previewOriginal" type="button">Open original</button>
               </div>
             </div>
@@ -799,12 +902,14 @@
                   <small>Click a result to load a site, or use the reader view.</small>
                 </div>
               </div>
-              <iframe id="previewFrame" title="Site preview" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-same-origin"></iframe>
+              <iframe id="previewFrame" title="Site preview" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-same-origin allow-top-navigation"></iframe>
             </div>
           </div>
         </aside>
       </main>
     </div>
+
+    <div id="fullscreenContainer"></div>
 
     <div id="settingsModal" class="settings-modal" aria-modal="true" role="dialog">
       <div class="settings-panel">
@@ -814,10 +919,15 @@
         </div>
 
         <div class="settings-grid">
+          <div class="url-input-row">
+            <input id="customUrlInput" type="text" placeholder="Enter URL (e.g., https://example.com or about:blank)" />
+            <button id="openCustomUrl" type="button">Open</button>
+          </div>
+
           <div class="setting-row">
             <div>
               <strong>Show live website when possible</strong>
-              <small>Render allowed websites inside Gust.</small>
+              <small>Render all websites inside Gust without restrictions.</small>
             </div>
             <button class="toggle active" data-toggle="showLive" type="button" aria-label="Toggle live website"></button>
           </div>
@@ -833,9 +943,9 @@
           <div class="setting-row">
             <div>
               <strong>Allow website scripts</strong>
-              <small>Higher interactivity, lower safety.</small>
+              <small>Full interactivity for all sites.</small>
             </div>
-            <button class="toggle" data-toggle="allowScripts" type="button" aria-label="Allow website scripts"></button>
+            <button class="toggle active" data-toggle="allowScripts" type="button" aria-label="Allow website scripts"></button>
           </div>
 
           <div class="setting-row">
@@ -850,34 +960,12 @@
 
           <div class="setting-row">
             <div>
-              <strong>Region</strong>
-            </div>
-            <select id="regionSelect" class="setting-select">
-              <option value="us">United States</option>
-              <option value="uk">United Kingdom</option>
-              <option value="eu">Europe</option>
-            </select>
-          </div>
-
-          <div class="setting-row">
-            <div>
               <strong>Results per search</strong>
             </div>
             <select id="resultsPerPage" class="setting-select">
               <option value="8">8</option>
               <option value="12">12</option>
               <option value="20">20</option>
-            </select>
-          </div>
-
-          <div class="setting-row">
-            <div>
-              <strong>Text size</strong>
-            </div>
-            <select id="textSize" class="setting-select">
-              <option value="normal">Normal</option>
-              <option value="large">Large</option>
-              <option value="compact">Compact</option>
             </select>
           </div>
 
@@ -909,16 +997,17 @@
       const previewFrame = document.getElementById('previewFrame');
       const previewBlank = document.getElementById('previewBlank');
       const previewOriginal = document.getElementById('previewOriginal');
+      const previewFullscreen = document.getElementById('previewFullscreen');
       const settingsModal = document.getElementById('settingsModal');
+      const workspace = document.getElementById('workspace');
+      const fullscreenContainer = document.getElementById('fullscreenContainer');
 
       const defaultSettings = {
         showLive: true,
         preloadOnHover: true,
-        allowScripts: false,
+        allowScripts: true,
         defaultView: 'website',
-        region: 'us',
         resultsPerPage: 8,
-        textSize: 'normal',
       };
 
       function getSettings() {
@@ -932,15 +1021,12 @@
 
       function applySettings() {
         const settings = getSettings();
-        document.body.dataset.textSize = settings.textSize;
         document.querySelectorAll('.toggle').forEach((toggle) => {
           const key = toggle.dataset.toggle;
           toggle.classList.toggle('active', !!settings[key]);
         });
         document.getElementById('defaultView').value = settings.defaultView;
-        document.getElementById('regionSelect').value = settings.region;
         document.getElementById('resultsPerPage').value = String(settings.resultsPerPage);
-        document.getElementById('textSize').value = settings.textSize;
       }
 
       function saveSettings() {
@@ -949,9 +1035,7 @@
           settings[toggle.dataset.toggle] = toggle.classList.contains('active');
         });
         settings.defaultView = document.getElementById('defaultView').value;
-        settings.region = document.getElementById('regionSelect').value;
         settings.resultsPerPage = Number(document.getElementById('resultsPerPage').value);
-        settings.textSize = document.getElementById('textSize').value;
         localStorage.setItem('gust-settings', JSON.stringify(settings));
         applySettings();
       }
@@ -1019,26 +1103,6 @@
         },
         {
           id: 'r7',
-          title: 'Local weather and development updates',
-          url: 'https://weather.com',
-          source: 'weather',
-          category: 'local-live',
-          score: 77,
-          publishedAt: '2025-08-14',
-          snippet: 'Current conditions, severe weather watches, and high-value local updates while you research tech topics.'
-        },
-        {
-          id: 'r8',
-          title: 'Game dev sandbox and browser experiments',
-          url: 'https://play.google.com/store/apps/details?id=com.example.game',
-          source: 'games',
-          category: 'games',
-          score: 70,
-          publishedAt: '2025-08-02',
-          snippet: 'Small browser game ideas and interactive web experiments built around thoughtful, low-latency UI systems.'
-        },
-        {
-          id: 'r9',
           title: 'Open source React hooks utilities',
           url: 'https://github.com/uidotdev/usehooks',
           source: 'github',
@@ -1048,7 +1112,7 @@
           snippet: 'A strong open-source collection of reusable hooks that solve common issues with stable references and predictable behavior.'
         },
         {
-          id: 'r10',
+          id: 'r8',
           title: 'React hooks performance benchmark',
           url: 'https://benchmarkjs.com',
           source: 'benchmark',
@@ -1064,25 +1128,94 @@
       let activePreviewUrl = '';
       let pinnedResults = [];
 
-      function toSafeUrl(url) {
-        try {
-          const parsed = new URL(url);
-          if (!['http:', 'https:'].includes(parsed.protocol)) return null;
-          const host = parsed.hostname.toLowerCase();
-          if (host === 'localhost' || host.startsWith('127.') || host.startsWith('10.') || host.startsWith('192.168.') || host.startsWith('172.')) {
-            return null;
-          }
-          return parsed.href;
-        } catch {
-          return null;
+      function normalizeUrl(input) {
+        const trimmed = input.trim();
+        
+        if (!trimmed) return null;
+        
+        if (trimmed === 'about:blank') return 'about:blank';
+        
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('about:')) {
+          return trimmed;
         }
+        
+        if (!trimmed.includes(' ') && trimmed.includes('.')) {
+          return 'https://' + trimmed;
+        }
+        
+        return null;
       }
 
-      function isAllowedLiveHost(url) {
-        const safe = toSafeUrl(url);
-        if (!safe) return false;
-        const allowed = ['react.dev', 'developer.mozilla.org', 'www.freecodecamp.org', 'dev.to', 'medium.com', 'w3schools.com', 'www.youtube.com', 'weather.com'];
-        return allowed.some((host) => safe.includes(host));
+      function previewSite(urlInput) {
+        const normalized = normalizeUrl(urlInput);
+        
+        if (!normalized) {
+          previewBlank.style.display = 'flex';
+          previewBlank.innerHTML = '<div><strong>Invalid URL</strong><small>Please enter a valid URL.</small></div>';
+          previewFrame.src = 'about:blank';
+          activePreviewUrl = '';
+          return;
+        }
+
+        activePreviewUrl = normalized;
+        const settings = getSettings();
+
+        previewBlank.style.display = 'none';
+        
+        const sandboxAttr = settings.allowScripts 
+          ? 'allow-scripts allow-forms allow-popups allow-modals allow-same-origin allow-top-navigation' 
+          : 'allow-forms allow-popups allow-modals allow-same-origin';
+        
+        previewFrame.setAttribute('sandbox', sandboxAttr);
+        previewFrame.src = normalized;
+      }
+
+      function openFullscreen(url) {
+        const normalized = normalizeUrl(url || activePreviewUrl);
+        if (!normalized) return;
+
+        const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gust Fullscreen Proxy</title>
+  <style>
+    body { margin: 0; padding: 0; }
+    #controls { position: fixed; top: 0; left: 0; right: 0; z-index: 10000; background: rgba(0,0,0,0.8); padding: 10px; display: flex; gap: 10px; }
+    #controls input, #controls button { padding: 8px 12px; border-radius: 6px; border: 1px solid #666; background: #1a1a1a; color: #fff; cursor: pointer; }
+    #controls button:hover { background: #333; }
+    #frame { position: absolute; top: 50px; left: 0; right: 0; bottom: 0; width: 100%; height: calc(100vh - 50px); border: none; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <button onclick="history.back()">← Back</button>
+    <button onclick="location.reload()">Reload</button>
+    <input type="text" id="urlbar" value="${normalized}" style="flex:1;" />
+    <button onclick="openUrl()">Go</button>
+    <button onclick="window.close()">Close</button>
+  </div>
+  <iframe id="frame" src="${normalized}"></iframe>
+  <script>
+    const urlbar = document.getElementById('urlbar');
+    const frame = document.getElementById('frame');
+    function openUrl() {
+      const url = urlbar.value.trim();
+      if (url) frame.src = url.startsWith('http') ? url : 'https://' + url;
+    }
+    urlbar.addEventListener('keypress', (e) => { if (e.key === 'Enter') openUrl(); });
+  </script>
+</body>
+</html>`;
+        
+        fullscreenContainer.innerHTML = html;
+        fullscreenContainer.style.display = 'block';
+      }
+
+      function exitFullscreen() {
+        fullscreenContainer.innerHTML = '';
+        fullscreenContainer.style.display = 'none';
       }
 
       function getResults(query = searchInput.value.trim() || DEFAULT_QUERY) {
@@ -1134,7 +1267,7 @@
           resultsList.innerHTML = `
             <div class="panel" style="padding: 22px; border-radius: 18px; color: var(--muted-strong);">
               <strong style="display:block; margin-bottom: 8px; font-size: 18px; color: var(--text);">No results found</strong>
-              Try a different keyword or switch tabs to search a different category.
+              Try a different keyword or enter a URL above to open any website.
             </div>
           `;
           return;
@@ -1175,7 +1308,7 @@
         resultsList.querySelectorAll('[data-open]').forEach((button) => {
           button.addEventListener('click', (event) => {
             const url = event.currentTarget.dataset.open;
-            openOriginal(url);
+            window.open(url, '_blank', 'noopener,noreferrer');
           });
         });
 
@@ -1189,10 +1322,7 @@
           if (getSettings().preloadOnHover) {
             card.addEventListener('mouseenter', () => {
               const url = card.dataset.url;
-              if (isAllowedLiveHost(url)) {
-                previewFrame.src = url;
-                previewBlank.style.display = 'none';
-              }
+              previewSite(url);
             });
           }
         });
@@ -1210,48 +1340,11 @@
         }
 
         pinList.innerHTML = pinnedResults.slice(0, 5).map((item) => `
-          <div class="pin-item">
+          <div class="pin-item" onclick="previewSite('${item.url}')">
             <h4>${item.title}</h4>
-            <small>${item.source}</small>
+            <small>${item.url}</small>
           </div>
         `).join('');
-      }
-
-      function previewSite(url) {
-        const safeUrl = toSafeUrl(url);
-        if (!safeUrl) {
-          previewBlank.style.display = 'flex';
-          previewBlank.innerHTML = '<div><strong>Blocked by safety policy</strong><small>Private or unsupported addresses are refused.</small></div>';
-          previewFrame.src = 'about:blank';
-          activePreviewUrl = '';
-          return;
-        }
-
-        activePreviewUrl = safeUrl;
-        const settings = getSettings();
-
-        if (settings.showLive && isAllowedLiveHost(safeUrl)) {
-          previewBlank.style.display = 'none';
-          previewFrame.setAttribute('sandbox', settings.allowScripts ? 'allow-scripts allow-forms allow-popups allow-modals allow-same-origin' : 'allow-forms allow-popups allow-modals');
-          previewFrame.src = safeUrl;
-        } else {
-          previewBlank.style.display = 'flex';
-          previewBlank.innerHTML = `
-            <div>
-              <strong>${safeUrl}</strong>
-              <small>Showing a reader-style fallback because the website blocks embedded viewing.</small>
-            </div>
-          `;
-          previewFrame.src = 'about:blank';
-        }
-      }
-
-      function openOriginal(url) {
-        const safeUrl = toSafeUrl(url);
-        if (!safeUrl) {
-          return;
-        }
-        window.open(safeUrl, '_blank', 'noopener,noreferrer');
       }
 
       function setActiveTab(tab) {
@@ -1272,12 +1365,26 @@
       }
 
       document.getElementById('searchBtn').addEventListener('click', () => {
-        renderResults();
+        const input = searchInput.value.trim();
+        const normalized = normalizeUrl(input);
+        
+        if (normalized) {
+          previewSite(input);
+        } else {
+          renderResults();
+        }
       });
 
       searchInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
-          renderResults();
+          const input = searchInput.value.trim();
+          const normalized = normalizeUrl(input);
+          
+          if (normalized) {
+            previewSite(input);
+          } else {
+            renderResults();
+          }
         }
       });
 
@@ -1308,6 +1415,20 @@
         settingsModal.classList.remove('visible');
       });
 
+      document.getElementById('openCustomUrl').addEventListener('click', () => {
+        const url = document.getElementById('customUrlInput').value;
+        if (url) {
+          previewSite(url);
+          settingsModal.classList.remove('visible');
+        }
+      });
+
+      document.getElementById('customUrlInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          document.getElementById('openCustomUrl').click();
+        }
+      });
+
       document.querySelectorAll('.toggle').forEach((toggle) => {
         toggle.addEventListener('click', () => {
           toggle.classList.toggle('active');
@@ -1320,16 +1441,23 @@
         previewBlank.innerHTML = '<div><strong>Cached pages cleared</strong><small>Everything is clean and the preview is ready again.</small></div>';
       });
 
-      document.getElementById('previewOriginal').addEventListener('click', () => {
+      previewOriginal.addEventListener('click', () => {
         if (activePreviewUrl) {
-          openOriginal(activePreviewUrl);
+          window.open(activePreviewUrl, '_blank', 'noopener,noreferrer');
+        }
+      });
+
+      previewFullscreen.addEventListener('click', () => {
+        if (activePreviewUrl) {
+          openFullscreen(activePreviewUrl);
         }
       });
 
       document.getElementById('previewBack').addEventListener('click', () => {
         previewFrame.src = 'about:blank';
         previewBlank.style.display = 'flex';
-        previewBlank.innerHTML = '<div><strong>Preview ready</strong><small>Click a result to load a site, or use the reader view.</small></div>';
+        previewBlank.innerHTML = '<div><strong>Preview ready</strong><small>Click a result or enter a URL to load a site.</small></div>';
+        activePreviewUrl = '';
       });
 
       document.addEventListener('keydown', (event) => {
@@ -1340,6 +1468,7 @@
         }
         if (event.key === 'Escape') {
           settingsModal.classList.remove('visible');
+          exitFullscreen();
         }
       });
 
